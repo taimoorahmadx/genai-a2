@@ -30,13 +30,13 @@ Patient IDs are sorted, shuffled using `numpy.random.default_rng(42)`, then spli
 
 Default target: `Qwen/Qwen2.5-1.5B-Instruct` (Apache-2.0, 1.54B parameters, decoder-only, RoPE, GQA, 32,768 context). Draft candidate: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0, 0.49B parameters). The Qwen2.5 family advertises a unified tokenizer; the benchmark and app compare vocabularies before speculative decoding. `microsoft/Phi-3.5-mini-instruct` is an alternative at 3.8B, MIT, and 128K context, with a higher weight/activation memory burden. The target's fp16 weights alone require roughly 3.1 GB before KV cache, activations and framework overhead; the 0.5B draft adds roughly 1 GB at fp16. LoRA training completed on a free Colab Tesla T4 in this project; actual GPU memory use is recorded with the benchmark outputs where available.
 
-Training uses LoRA (rank 16, alpha 32, dropout .05) on Q/K/V/O projections, AdamW defaults from Transformers Trainer, 3 epochs, LR 2e-4, batch 1, gradient accumulation 8, 4096 token truncation, gradient checkpointing, and validation-loss checkpoint selection. Train/evaluation patient sets are distinct. Run:
+Training uses LoRA (rank 16, alpha 32, dropout .05) on Q/K/V/O projections, AdamW defaults from Transformers Trainer, 3 epochs, LR 2e-4, batch 1, gradient accumulation 8, 4096 token truncation, gradient checkpointing, and validation-loss checkpoint selection. The script uses FP16 on T4-class GPUs and BF16 only where supported; warmup is specified as an explicit step count for compatibility. Train/evaluation patient sets are distinct. Run:
 
 ```bash
 python scripts/train_lora.py
 ```
 
-The script uses answer-only loss and validation-loss checkpoint selection. A three-epoch Colab T4 run completed and the adapter was evaluated on validation. Colab required FP16 and a Transformers 5 compatibility adjustment made only in that runtime; reconcile those changes before claiming exact fresh-clone reproduction. Inspect truncation effects before final conclusions.
+The script uses answer-only loss and validation-loss checkpoint selection. A three-epoch Colab T4 run completed and the adapter was evaluated on validation and once on the held-out test after settings were frozen. Inspect truncation effects where logs/data permit; per-step training logs were not retained.
 
 ## Validation and final test
 
