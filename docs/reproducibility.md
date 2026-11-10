@@ -9,7 +9,8 @@
 - Dataset was prepared in Colab using the prescribed split: 37/8/8 patients and 603/206/206 annotations; leakage check passed. Manifest and processed notes remain in the Colab runtime, not this repository.
 - A Colab Tesla T4 completed 3-epoch LoRA training (228 steps; train loss 0.1347; validation loss 0.04293). The adapter archive is present locally as ignored `trained-adapter.zip`; do not commit it. Colab-only changes selected FP16 on T4 and replaced `warmup_ratio` for Transformers 5 compatibility.
 - Training loss values are not classification/evidence evaluation results.
-- Same-split validation evaluations completed in Colab (206 annotations): baseline accuracy 0.2621, macro-F1 0.1109, evidence micro-F1 0.000; LoRA adapter accuracy 0.7233, macro-F1 0.3564, evidence micro-F1 0.4286. Inclusion: baseline accuracy/macro-F1 0.4242/0.1156, adapter 0.7273/0.2502 (66 rows). Exclusion: baseline 0.1857/0.0799, adapter 0.7214/0.1397 (140 rows). The adapter predicts `not excluded` for all exclusion examples and fails to recover rare `excluded` and `not applicable` categories. The final test command was attempted after freezing settings, but Colab refused GPU access because of usage limits before evaluation began; no test metrics were produced. Kaggle GPU was also unavailable because this account cannot complete phone verification. Retry only if another GPU becomes available.
+- Same-split validation evaluations completed in Colab (206 annotations): baseline accuracy 0.2621, macro-F1 0.1109, evidence micro-F1 0.000; LoRA adapter accuracy 0.7233, macro-F1 0.3564, evidence micro-F1 0.4286. Inclusion: baseline accuracy/macro-F1 0.4242/0.1156, adapter 0.7273/0.2502 (66 rows). Exclusion: baseline 0.1857/0.0799, adapter 0.7214/0.1397 (140 rows). The adapter predicts `not excluded` for all validation exclusion examples and fails to recover rare `excluded` and `not applicable` categories.
+- The final test was run once on Kaggle with the frozen adapter after removing incompatible `torchao` 0.10.0. Metrics: overall n=206, accuracy 0.6893, macro-F1 0.3439, evidence micro-F1 0.4419; inclusion n=75, accuracy/macro-F1 0.6800/0.2350; exclusion n=131, accuracy/macro-F1 0.6947/0.1366. It predicted `not excluded` for all 131 exclusion examples, including 28 gold `not enough information` and 12 `not applicable` examples. There were no gold `excluded` cases in the test set, so performance on that class is not estimable. Do not tune or rerun using test data. The Kaggle `test_finetuned.json` contains patient-level notes and predictions; keep it private.
 - Manual error review of eight displayed adapter validation examples found one repeated failure pattern: each gold `not enough information` exclusion was predicted as `not excluded`. In multiple examples the evidence was irrelevant (demographics/comorbidities for unrelated criteria or travel for a discharge criterion); one pregnancy-related case omitted the annotated uterine-imaging evidence and cited symptoms instead. These eight criterion examples span only three patient notes, so they are not eight independent patient cases. This is a targeted qualitative sample, not a prevalence estimate. Full notes and row-level artifacts remain private in Colab and are not reproduced here.
 
 ## Commands
@@ -18,7 +19,7 @@ See the repository README for setup, dataset manifest creation, LoRA fine-tuning
 
 ## Results ledger
 
-Colab training, validation, attention, and a reduced decoder smoke benchmark have run. The decoder timings are one-repeat exploratory measurements; a stable repeated benchmark, held-out test evaluation, and app demo remain pending. Keep generated data and raw patient notes out of version control.
+Colab training, validation, attention, and a reduced decoder smoke benchmark have run. The one-time held-out test also completed on Kaggle. Decoder timings are one-repeat exploratory measurements; a stable repeated benchmark, compiled report, and app demo remain pending. Keep generated data and raw patient notes out of version control.
 
 | Experiment | Status | Artifact |
 |---|---|---|
@@ -29,7 +30,7 @@ Colab training, validation, attention, and a reduced decoder smoke benchmark hav
 | Attention check/benchmark | Completed on Colab Tesla T4, CUDA; 2 warmups and 5 timed repeats per method; JSON remains in Colab | `artifacts/results/attention_benchmark.json` |
 | KV/speculative decoder benchmark | Reduced smoke run completed on Colab T4; all token IDs matched, but only one timing repeat was used. Target/draft vocabulary and special token IDs verified equal. | `artifacts/results/decoding_benchmark.json` in Colab runtime |
 | Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
-| Final test | Attempted once after freezing settings; Colab GPU backend unavailable due to usage limits, so evaluation did not start and no results were produced. | rerun once when GPU access returns |
+| Final test | Completed once on Kaggle after settings were frozen; per-class metrics and confusion matrix are in `report/main.tex`; aggregate results above. | patient-level JSON in Kaggle; do not publish |
 
 ### Tiled attention benchmark (Colab Tesla T4)
 

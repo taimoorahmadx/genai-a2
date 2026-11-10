@@ -7,7 +7,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This paper describes an educational prototype for classifying individual clinical-trial criteria against patient descriptions and returning sentence-level evidence. The implementation uses the required TrialGPT Criterion Annotations data, a deterministic patient-grouped split, an open-weight autoregressive model interface, parameter-efficient supervised adaptation, and explicit implementations of cached decoding, tiled online-softmax attention, and greedy speculative decoding. Colab Tesla T4 runs completed supervised adaptation and validation, and synthetic attention and reduced decoder smoke benchmarks. The held-out test remains pending. Decoder timings use one repeat and are exploratory; this paper reports them with that limitation.
+This paper describes an educational prototype for classifying individual clinical-trial criteria against patient descriptions and returning sentence-level evidence. The implementation uses the required TrialGPT Criterion Annotations data, a deterministic patient-grouped split, an open-weight autoregressive model interface, parameter-efficient supervised adaptation, and explicit implementations of cached decoding, tiled online-softmax attention, and greedy speculative decoding. Colab Tesla T4 runs completed supervised adaptation and validation, and synthetic attention and reduced decoder smoke benchmarks. The held-out test was evaluated once after settings were frozen. Decoder timings use one repeat and are exploratory; this paper reports them with that limitation.
 \end{abstract}
 \begin{IEEEkeywords}clinical trial matching, language models, evidence retrieval, KV cache, online softmax, speculative decoding\end{IEEEkeywords}
 
@@ -65,14 +65,41 @@ Figure~\ref{fig:system} summarizes the supervised data path and application infe
 \end{figure*}
 
 \section{Experimental Setup and Results}
-Training, validation evaluation, and synthetic attention and decoder benchmarks have been run in Colab. The final test evaluation was attempted after settings were frozen, but could not start because Colab GPU access was quota-limited; no test results are available. The same 206 validation annotations were evaluated with the base model and adapter. Table I reports observed classification and evidence metrics. The adapter increased accuracy from 0.262 to 0.723 and macro-F1 from 0.111 to 0.356. The increase in accuracy is not a complete picture: the adapter predicted \emph{not excluded} for all 140 exclusion examples, giving perfect recall for that majority class but failing to recover the two gold \emph{excluded} and eleven \emph{not applicable} cases. Its macro-F1 on exclusion criteria is only 0.140. This class bias motivates error review and careful interpretation; test data must not be used to tune it. Evidence micro-F1 increased from 0.000 to 0.429. Row-level evaluation artifacts remain in the Colab runtime and are not committed because they contain patient notes. On six small synthetic causal/noncausal attention cases, tiled outputs matched the reference with maximum absolute error $5.36\times10^{-7}$, but the tiled Python implementation was 2.58--51.98 times slower; these measurements do not establish an advantage on model workloads. For three short synthetic decoding cases, uncached, KV-cached, and speculative generation produced identical token IDs. KV cache was 1.85--4.06 times faster than uncached generation. Speculative decoding accepted all proposed tokens in these short repetitive outputs, but was 1.56--2.08 times slower than KV caching. These decoder timings used a single measured repeat, so they are exploratory; longer repeated measurements remain pending; target and draft tokenizer vocabularies and special token IDs were verified to match.
+Training, validation evaluation, and synthetic attention and decoder benchmarks have been run in Colab; the final test was evaluated once on Kaggle after settings were frozen. The same 206 validation annotations were evaluated with the base model and adapter. Table I reports validation results. The adapter increased validation accuracy from 0.262 to 0.723 and macro-F1 from 0.111 to 0.356. Its predictions remain strongly biased: it predicted \emph{not excluded} for all 140 validation exclusion examples, failing to recover the two gold \emph{excluded} and eleven \emph{not applicable} cases. Validation exclusion macro-F1 was 0.140. On the held-out test set, adapter accuracy was 0.689, macro-F1 0.344, and evidence micro-F1 0.442 (Table~\ref{tab:test}). Macro-F1 is the unweighted mean over the six predefined labels, assigning zero to undefined class scores. Table~\ref{tab:testclass} gives per-class scores and the confusion matrix. For all 131 test exclusion examples, the model predicted \emph{not excluded}; this correctly classified 91, but misclassified 28 \emph{not enough information} and 12 \emph{not applicable} examples. On test inclusion criteria, accuracy was 0.680 and macro-F1 0.235. Inclusion/exclusion macro-F1 averages over the same six predefined labels, assigning zero to undefined class scores, including labels absent from a subset. The test set contained no gold \emph{excluded} examples, so test performance on that class cannot be assessed. No settings were changed using test results. Row-level evaluation artifacts remain in Kaggle and are not committed because they contain patient notes. On six small synthetic causal/noncausal attention cases, tiled outputs matched the reference with maximum absolute error $5.36\times10^{-7}$, but the tiled Python implementation was 2.58--51.98 times slower; these measurements do not establish an advantage on model workloads. For three short synthetic decoding cases, uncached, KV-cached, and speculative generation produced identical token IDs. KV cache was 1.85--4.06 times faster than uncached generation. Speculative decoding accepted all proposed tokens in these short repetitive outputs, but was 1.56--2.08 times slower than KV caching. These decoder timings used a single measured repeat, so they are exploratory; longer repeated measurements remain pending; target and draft tokenizer vocabularies and special token IDs were verified to match.
 
 The three-epoch training run completed 228 optimizer steps; the reported final training loss was 0.1347 and validation loss was 0.04293. The per-step training log was not retained, so a learning-curve figure cannot be produced from the available records.
 
 \begin{table}[ht]
-\caption{Validation results; held-out test pending.}
+\caption{Baseline and LoRA adapter validation results.}
 \centering
 \begin{tabular}{lrr}\toprule Measure & Base & LoRA adapter\\\midrule Accuracy & 0.262 & 0.723\\Macro-F1 & 0.111 & 0.356\\Evidence micro-F1 & 0.000 & 0.429\\Inclusion accuracy & 0.424 & 0.727\\Inclusion macro-F1 & 0.116 & 0.250\\Exclusion accuracy & 0.186 & 0.721\\Exclusion macro-F1 & 0.080 & 0.140\\\bottomrule\end{tabular}
+\end{table}
+
+\begin{table*}[t]
+\caption{Held-out test per-class scores and confusion matrix (rows are gold labels; columns are predicted labels).}
+\label{tab:testclass}
+\centering\small
+\begin{tabular}{lrrrrr|rrrrrr}\toprule
+& \multicolumn{4}{c}{Per-class scores} & & \multicolumn{6}{c}{Confusion matrix}\\
+Class & P & R & F1 & n & & Inc. & Not inc. & NEI & Exc. & Not exc. & N/A\\\midrule
+Included & 1.000 & 0.481 & 0.650 & 27 & & 13 & 0 & 14 & 0 & 0 & 0\\
+Not included & 0.000 & 0.000 & 0.000 & 7 & & 0 & 0 & 7 & 0 & 0 & 0\\
+Not enough information & 0.613 & 0.576 & 0.594 & 66 & & 0 & 0 & 38 & 0 & 28 & 0\\
+Excluded & 0.000 & 0.000 & 0.000 & 0 & & 0 & 0 & 0 & 0 & 0 & 0\\
+Not excluded & 0.695 & 1.000 & 0.820 & 91 & & 0 & 0 & 0 & 0 & 91 & 0\\
+Not applicable & 0.000 & 0.000 & 0.000 & 15 & & 0 & 0 & 3 & 0 & 12 & 0\\\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table}[ht]
+\caption{One-time held-out test results for the fine-tuned adapter.}
+\label{tab:test}
+\centering
+\begin{tabular}{lrr}\toprule Measure & Overall & Inclusion / exclusion\\\midrule
+Accuracy & 0.689 & 0.680 / 0.695\\
+Macro-F1 & 0.344 & 0.235 / 0.137\\
+Evidence micro-F1 & 0.442 & --\\
+Annotations & 206 & 75 / 131\\\bottomrule\end{tabular}
 \end{table}
 
 \begin{table}[ht]
@@ -82,10 +109,10 @@ The three-epoch training run completed 228 optimizer steps; the reported final t
 \end{table}
 
 \section{Limitations and Failure Analysis}
-The task's 53-patient sample is small; validation shows a strong class bias despite improved aggregate accuracy. Criterion labels are not independent across patients. In a targeted review of eight criterion-level errors drawn from only three patient notes, all eight gold `not enough information` exclusion labels were predicted as `not excluded`. Several predictions cited unrelated sentences; another missed the annotated uterine-imaging evidence and cited symptoms instead. This small, clustered sample illustrates failure modes but cannot estimate their prevalence. Free-form generation can produce malformed or unsupported outputs despite JSON prompting and ID validation. Evidence annotations can be empty, and absent evidence must not be interpreted as proof of eligibility or ineligibility. The held-out test evaluation (blocked by Colab GPU quota), repeated decoder benchmark, report PDF, screenshots, model artifact publication, and demo recording remain pending; target and draft tokenizer vocabularies and special token IDs have been verified to match.
+The task's 53-patient sample is small; both validation and test show strong class bias. Criterion labels are not independent across patients. In a targeted review of eight criterion-level validation errors drawn from only three patient notes, all eight gold `not enough information` exclusion labels were predicted as `not excluded`. On test, every exclusion criterion was predicted as `not excluded`, including 28 `not enough information` and 12 `not applicable` gold cases; there were no gold `excluded` test examples. Several reviewed validation predictions cited unrelated sentences; another missed the annotated uterine-imaging evidence and cited symptoms instead. These small samples illustrate failure modes but cannot estimate their prevalence. Free-form generation can produce malformed or unsupported outputs despite JSON prompting and ID validation. Evidence annotations can be empty, and absent evidence must not be interpreted as proof of eligibility or ineligibility. The repeated decoder benchmark, report PDF, screenshots, model artifact publication, and demo recording remain pending; target and draft tokenizer vocabularies and special token IDs have been verified to match.
 
 \section{Conclusion}
-The repository provides a reproducible implementation scaffold covering data integrity, supervised adaptation, evidence-aware evaluation, model inference algorithms, and a browser application. Initial validation results show gains over the base model alongside a substantial class imbalance failure; the inference smoke tests show cached decoding gains and no speculative gain on the tested short outputs. Broader conclusions await a repeated decoder benchmark and the one-time held-out test. The system remains an educational prototype and cannot determine enrollment eligibility.
+The repository provides a reproducible implementation scaffold covering data integrity, supervised adaptation, evidence-aware evaluation, model inference algorithms, and a browser application. Validation improved over the base model on aggregate metrics, but the one-time test results confirm substantial class bias, especially on exclusion criteria. The inference smoke tests show cached decoding gains and no speculative gain on the tested short outputs. A repeated decoder benchmark remains needed. The system remains an educational prototype and cannot determine enrollment eligibility.
 
 \section*{AI Use Acknowledgment}
 AI assistance supported repository scaffolding and implementation. The student must review and understand the code, perform the experiments, verify sources, and disclose AI use in the submitted work.

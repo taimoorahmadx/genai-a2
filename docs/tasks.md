@@ -18,7 +18,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] GPU LoRA training completed on Colab Tesla T4 for 3 epochs / 228 steps; reported train loss 0.1347 and best/final validation loss 0.04293. The adapter zip is present locally but ignored by Git; training log is not archived and truncation still needs review.
 - [x] Implement baseline/adapter evaluation on identical selected split, class/evidence metrics, inclusion/exclusion breakdowns and empty evidence policy.
 - [x] Run baseline and adapter on the same 206 validation annotations. Baseline accuracy/macro-F1 0.262/0.111; adapter 0.723/0.356. Adapter evidence micro-F1 0.429 (baseline 0). Adapter is biased toward `not excluded`; per-class failure review remains required.
-- [ ] One-time final test evaluation after settings were frozen. Attempted in Colab but blocked by GPU usage limits before producing results; no test metrics exist yet. Rerun once GPU access returns, then selectively report aggregate metrics only.
+- [x] One-time final test evaluation after settings were frozen, run on Kaggle. Fine-tuned adapter: n=206, accuracy 0.6893, macro-F1 0.3439, evidence micro-F1 0.4419; inclusion (n=75) accuracy/macro-F1 0.680/0.235; exclusion (n=131) 0.695/0.137. It predicted `not excluded` for every exclusion example; no gold `excluded` cases occurred in test. Do not tune or rerun on test.
 - [x] Include per-example predictions and error fields in evaluation artifacts; review eight validation error examples. All eight gold `not enough information` labels were predicted as `not excluded`; several cited irrelevant or incomplete evidence. They came from only three patient notes, so these are eight criterion-level errors, not eight independent patient cases. Broader, patient-diverse error analysis remains advisable.
 
 ## Inference engineering
@@ -40,7 +40,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] Fill report metadata (Taimoor Ahmad, Computer Science, FAST NUCES, repository URL); measured validation and benchmark results, the eight-example caveat, and AI-use acknowledgement are in the draft.
 - [x] Add a system workflow diagram and state that the step-wise training log was not retained, so learning curves cannot be reconstructed honestly.
 - [ ] Add a training-curve plot only if the original step-wise training log is recovered; do not invent one. Compile and review report PDF; no LaTeX compiler is installed here.
-- [ ] Final test results remain pending: Colab quota blocked access, and Kaggle GPU options are disabled until account phone verification, which the user cannot complete.
+- [x] Final test completed on Kaggle after enabling a T4 and removing incompatible `torchao` 0.10.0. Aggregate metrics are in the report; patient-level JSON must remain private.
 - [ ] Capture screenshots and record 5–7 minute demo. **External**.
 - [ ] Publish repository and model adapter download, submit via Google Classroom, and attend live evaluation. **External**.
 

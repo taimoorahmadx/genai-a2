@@ -4,7 +4,7 @@ An educational, reproducible research prototype for criterion-level screening on
 
 ## Current state
 
-The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, a synthetic attention benchmark, and a reduced one-repeat decoder smoke benchmark have run. The final test was attempted after freezing settings but could not start because Colab GPU access was quota-limited. The adapter archive is present locally as an ignored file; never commit it or patient-level outputs. See `docs/reproducibility.md` for measured results and limitations.
+The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, synthetic attention and reduced decoder benchmarks, and the one-time held-out test on Kaggle have run. The adapter archive is present locally as an ignored file; never commit it or patient-level outputs. See `docs/reproducibility.md` for measured results and limitations.
 
 ## Setup
 
@@ -68,7 +68,7 @@ Enter numbered patient sentences and one criterion per line (prefix `inclusion:`
 
 ## Report and submission
 
-See `report/main.tex` and `docs/reproducibility.md`. The report draft includes the author/repository details, a system workflow diagram, validation and inference results, error analysis, and limitations. The held-out test was blocked by unavailable GPU access; a repeated decoder benchmark, compiled PDF review, adapter distribution, and app demo remain pending. The step-wise training log was not preserved, so no training curve is reported. The assignment rubric is reproduced as provided. Record the demo and submit through Classroom externally.
+See `report/main.tex` and `docs/reproducibility.md`. The report draft includes author/repository details, a system workflow diagram, validation and held-out test results, inference results, error analysis, and limitations. A repeated decoder benchmark, compiled PDF review, adapter distribution, and app demo remain pending. The step-wise training log was not preserved, so no training curve is reported. Record the demo and submit through Classroom externally.
 
 ## AI-use acknowledgement
 

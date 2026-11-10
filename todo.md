@@ -23,12 +23,12 @@
 
 - [x] Run `python scripts/train_lora.py` on the T4 GPU for 3 epochs (228 steps; about 11m37s).
 - [x] Save/download the trained adapter zip from Colab. A local ignored copy exists; do not add it to Git.
-- [ ] Preserve the training log and inspect examples affected by 4096-token truncation.
+- [x] Check training-log availability: only final train/validation losses were reported; step-wise logs were not retained and cannot be reconstructed. Truncation effects remain a limitation to disclose.
 - [x] Run baseline and adapter evaluation on the same 206 validation examples. Baseline: accuracy 0.262, macro-F1 0.111, evidence micro-F1 0. Adapter: accuracy 0.723, macro-F1 0.356, evidence micro-F1 0.429. Adapter label outputs are strongly biased toward `not excluded`; investigate before drawing conclusions.
 - [x] Review eight validation label/evidence errors. All eight were gold `not enough information` predicted as `not excluded`; several had irrelevant or incomplete evidence IDs. The sample spans only three patient notes, so it is not eight independent patient cases. Review more diverse cases before final conclusions.
 - [x] Freeze the current model/settings for final evaluation; do not tune from test results.
-- [ ] Run the held-out test once: `python scripts/evaluate.py --split test --final-test --adapter /content/genai-a2-checkpoint`. Attempted in Colab; blocked when GPU quota was exhausted before results were produced.
-- [ ] Save and review real metrics and prediction artifacts; do not report unrun results.
+- [x] Run the held-out test exactly once after freezing settings using the saved adapter on Kaggle. Overall: n=206, accuracy 0.6893, macro-F1 0.3439, evidence micro-F1 0.4419; inclusion n=75 accuracy/macro-F1 0.680/0.235; exclusion n=131 accuracy/macro-F1 0.695/0.137. The model predicted `not excluded` for every exclusion case. No gold `excluded` cases were present in test.
+- [x] Review aggregate metrics. Keep `test_finetuned.json` private; it contains patient notes and row-level predictions. Do not tune or rerun on test.
 
 ## Validate inference methods
 
@@ -60,10 +60,10 @@
 - GPU: Tesla T4; training used FP16 after a Colab-only script adjustment for Transformers 5 and T4 precision.
 - Training completed: train loss 0.1347; final validation loss 0.04293. These are language-model losses, not eligibility metrics.
 - The adapter zip was downloaded and is available locally as an ignored file. It is intentionally not in Git; preserve it somewhere durable for re-upload to Colab.
-- Baseline/adapter validation JSON was generated in Colab; keep it private/out of Git because it contains patient notes and predictions. The held-out test split remains untouched.
+- Baseline/adapter validation and final test JSON were generated in Colab/Kaggle; keep them private/out of Git because they contain patient notes and predictions. The test was evaluated once with settings frozen.
 - User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
 - An initial Colab decoder benchmark attempt was interrupted during uncached generation. A reduced smoke run later completed; its one-repeat measurements are preliminary, and the explicit tokenizer equality check has since passed. Target/draft weights are cached in that runtime.
 - The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.
-- Kaggle GPU selection is currently disabled for this account; the user cannot complete phone verification. No other accelerator is available in the present environment.
-- The final test command was attempted after settings were frozen, but Colab displayed “Cannot connect to GPU backend” due to usage limits. No test metrics were generated; do not rerun until GPU access returns.
-- Time-critical next action: reconnect when GPU access returns, run final test once, save aggregate metrics only, then compile the report and complete external demo/submission.
+- Kaggle GPU access was enabled for the final test run; no further GPU work is essential for the core evaluation result.
+- The final test was successfully evaluated once on Kaggle after removing incompatible `torchao` 0.10.0. Aggregate output is documented; keep row-level JSON private and do not rerun/tune on test.
+- Time-critical next action: compile/review the report PDF if a LaTeX environment is available, then record the demo and submit through Classroom.
