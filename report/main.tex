@@ -34,10 +34,11 @@ The cached decoder prefills the prompt once, then forwards the newest token with
 \subsection{Application}
 The Streamlit application accepts numbered patient text and free-text inclusion/exclusion criteria, displays criterion category, explanation and evidence text, exposes a transparent aggregation rule and downloads a JSON report. It includes an educational-use notice and requires the local model to load successfully.
 
-Figure~\ref{fig:system} summarizes the supervised data path and application inference path. The test patients remain held out for a one-time final evaluation. The app parses model output and filters evidence IDs against the source note before display and export.
+Figure~\ref{fig:system} summarizes the supervised data path and application inference path. Test patients were kept untouched until the one-time final evaluation. The app parses model output and filters evidence IDs against the source note before display and export.
 
 \begin{figure*}[t]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   stage/.style={draw,rounded corners,align=center,text width=3.2cm,minimum height=1.05cm,font=\footnotesize,inner sep=4pt},
   flow/.style={-{Stealth[length=2mm]},thick},
@@ -60,6 +61,7 @@ Figure~\ref{fig:system} summarizes the supervised data path and application infe
 \draw[flow] (output) -- (review);
 \draw[link] (adapter.south) -- ++(0,-0.5) -| (model.north);
 \end{tikzpicture}
+}
 \caption{System overview. Patient-grouped training produces a LoRA adapter; the application combines it with the base model and validates cited sentence IDs before showing criterion-level outputs. Tiled online-softmax attention is evaluated separately against reference attention.}
 \label{fig:system}
 \end{figure*}
