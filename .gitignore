@@ -16,4 +16,5 @@ artifacts/results/*.csv
 *.pth
 *.pdf
 !report/*.pdf
+*.zip
 

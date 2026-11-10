@@ -42,7 +42,7 @@ def test_metrics_keep_all_labels_and_document_empty_policy():
     report=classification_report(["included"],["not enough information"])
     assert len(report["per_class"])==6
     ev=evidence_report([[],[1]], [[],[]])
-    assert "empty/empty" in ev["empty_policy"] and ev["micro_recall"]==0
+    assert "empty/empty" in ev["empty_policy"] and ev["micro_recall"]==0 and ev["macro_f1"]==0.5
 
 class TinyCacheModel:
     """Deterministic test double whose KV cache stores prior input token IDs."""

@@ -17,9 +17,9 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] Implement LoRA supervised training with answer-only loss, structured output, documented prompt/truncation/config.
 - [x] GPU LoRA training completed on Colab Tesla T4 for 3 epochs / 228 steps; reported train loss 0.1347 and best/final validation loss 0.04293. User downloaded adapter zip. Training log and artifact are not yet in repository; truncation still needs review.
 - [x] Implement baseline/adapter evaluation on identical selected split, class/evidence metrics, inclusion/exclusion breakdowns and empty evidence policy.
-- [ ] Run validation baseline and tuned model; do not access test for model selection.
+- [x] Run baseline and adapter on the same 206 validation annotations. Baseline accuracy/macro-F1 0.262/0.111; adapter 0.723/0.356. Adapter evidence micro-F1 0.429 (baseline 0). Adapter is biased toward `not excluded`; per-class failure review remains required.
 - [ ] One-time final test evaluation after settings are frozen; outputs will be ignored until reviewed and then selectively published.
-- [x] Add reproducible error-reporting data in evaluation artifacts; review and document at least eight real errors/contradictions/missing-information and unsupported-evidence cases after experiments.
+- [x] Include per-example predictions and error fields in evaluation artifacts. **Pending:** review and document at least eight real errors/contradictions/missing-information and unsupported-evidence cases; this has not yet been done.
 
 ## Inference engineering
 

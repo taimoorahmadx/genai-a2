@@ -24,7 +24,7 @@
 - [x] Run `python scripts/train_lora.py` on the T4 GPU for 3 epochs (228 steps; about 11m37s).
 - [x] Save/download the trained adapter zip from Colab. It is not yet in this repository.
 - [ ] Preserve the training log and inspect examples affected by 4096-token truncation.
-- [ ] Run baseline and adapter evaluation on validation: `python scripts/evaluate.py --split validation` (add `--adapter PATH` for the adapter).
+- [x] Run baseline and adapter evaluation on the same 206 validation examples. Baseline: accuracy 0.262, macro-F1 0.111, evidence micro-F1 0. Adapter: accuracy 0.723, macro-F1 0.356, evidence micro-F1 0.429. Adapter label outputs are strongly biased toward `not excluded`; investigate before drawing conclusions.
 - [ ] Review label and evidence errors; document at least eight distinct real failures, including missing-information and unsupported-evidence cases.
 - [ ] Freeze model and settings before final test evaluation.
 - [ ] Run the held-out test once: `python scripts/evaluate.py --split test --final-test`.
@@ -59,4 +59,6 @@
 - GPU: Tesla T4; training used FP16 after a Colab-only script adjustment for Transformers 5 and T4 precision.
 - Training completed: train loss 0.1347; final validation loss 0.04293. These are language-model losses, not eligibility metrics.
 - The adapter zip was downloaded by the user. It still needs to be copied into the project artifacts / a durable model location.
+- Baseline/adapter validation JSON was generated in Colab; keep it private/out of Git because it contains patient notes and predictions. The held-out test split remains untouched.
+- User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
 - The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.

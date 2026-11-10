@@ -14,10 +14,13 @@ def evidence_report(gold: list[list[int]], pred: list[list[int]]) -> dict[str, A
     tp=fp=fn=0; exact=[]
     for g,p in zip(gold,pred):
         gs,ps=set(g),set(p); tp+=len(gs&ps); fp+=len(ps-gs); fn+=len(gs-ps)
-        exact.append((len(gs&ps)/len(ps) if ps else (1. if not gs else 0.), len(gs&ps)/len(gs) if gs else (1. if not ps else 0.)))
+        precision=len(gs&ps)/len(ps) if ps else (1. if not gs else 0.)
+        recall=len(gs&ps)/len(gs) if gs else (1. if not ps else 0.)
+        exact.append((precision,recall,2*precision*recall/(precision+recall) if precision+recall else 0.))
     precision=tp/(tp+fp) if tp+fp else 1.; recall=tp/(tp+fn) if tp+fn else 1.
     return {"micro_precision":precision,"micro_recall":recall,"micro_f1":2*precision*recall/(precision+recall) if precision+recall else 0.,
             "macro_precision":sum(x[0] for x in exact)/len(exact) if exact else 0.,"macro_recall":sum(x[1] for x in exact)/len(exact) if exact else 0.,
+            "macro_f1":sum(x[2] for x in exact)/len(exact) if exact else 0.,
             "empty_policy":"Per-record empty/empty scores 1 for precision and recall; one-sided empty scores 0. Micro empty/empty corpus scores 1."}
 
 def evaluate(records: list[dict[str, Any]]) -> dict[str, Any]:
