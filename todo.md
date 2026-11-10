@@ -44,7 +44,8 @@
 - [ ] Run the inference comparison page with downloaded target and draft model weights.
 - [x] Fill report metadata (Taimoor Ahmad, Computer Science, FAST NUCES, repository URL); measured validation/benchmark results, error analysis and AI-use acknowledgement are included.
 - [x] Add system workflow diagram and document that step-wise training logs were not retained, so a training curve cannot be recreated honestly.
-- [ ] Compile `report/main.tex` to PDF and review it; no LaTeX compiler is installed in this environment.
+- [x] Compile and visually review `report/genai_a2_report.pdf`.
+- [ ] Remove the stale “report PDF ... remain pending” wording from `report/main.tex`, recompile, and replace the PDF.
 - [ ] Capture application screenshots and record the required 5–7 minute demo.
 - [ ] Publish the repository and provide a model adapter download path.
 - [ ] Submit the report/project through Google Classroom and attend the live evaluation.
@@ -53,7 +54,7 @@
 
 - This workspace has CPU-only PyTorch and no Transformers/PEFT installation; the trained adapter zip is local but ignored, while base/draft model weights and the dataset are unavailable locally.
 - The sandbox denied Streamlit's local socket bind, so app startup must be checked in a normal local or hosted environment.
-- `pdflatex` is unavailable here, so the report PDF must be compiled elsewhere.
+- `pdflatex` is unavailable here. The current compiled PDF is present, but a final wording fix must be made and recompiled elsewhere.
 
 ## Latest Colab run (Nov. 10, 2026)
 

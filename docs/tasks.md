@@ -39,7 +39,8 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] Create IEEE LaTeX report draft with methods, references, result placeholders and limitations; no values/citations or completed work are fabricated.
 - [x] Fill report metadata (Taimoor Ahmad, Computer Science, FAST NUCES, repository URL); measured validation and benchmark results, the eight-example caveat, and AI-use acknowledgement are in the draft.
 - [x] Add a system workflow diagram and state that the step-wise training log was not retained, so learning curves cannot be reconstructed honestly.
-- [ ] Add a training-curve plot only if the original step-wise training log is recovered; do not invent one. Compile and review report PDF; no LaTeX compiler is installed here.
+- [x] Compile and visually review the IEEE report PDF (`report/genai_a2_report.pdf`). Correct its stale pending-PDF wording in LaTeX and recompile before final submission.
+- [ ] Add a training-curve plot only if the original step-wise training log is recovered; do not invent one (logs were not retained).
 - [x] Final test completed on Kaggle after enabling a T4 and removing incompatible `torchao` 0.10.0. Aggregate metrics are in the report; patient-level JSON must remain private.
 - [ ] Capture screenshots and record 5–7 minute demo. **External**.
 - [ ] Publish repository and model adapter download, submit via Google Classroom, and attend live evaluation. **External**.
