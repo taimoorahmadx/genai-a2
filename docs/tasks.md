@@ -29,7 +29,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] CPU numerical tests cover three shapes and causal/noncausal masks; max/mean error computed by benchmark script.
 - [x] Execute attention timing/memory experiment on Colab Tesla T4; all six cases passed equivalence checks (maximum absolute error 5.36e-7). Tiled attention was 2.58x–51.98x slower on these small shapes, with small/mixed peak-memory differences. Full measurements are in `docs/reproducibility.md`.
 - [x] Implement greedy speculative decoding including target verification, correction after rejection, output/cache synchronization by re-prefill; local deterministic mock verifies mismatch correction.
-- [x] Verify actual Qwen target, KV-cache, and speculative generated token IDs match at three reduced prompt/output lengths on Colab T4; record preliminary acceptance, speed, and memory results. **Pending:** run the explicit vocabulary check added to the benchmark script, then collect a longer repeated benchmark for stable performance estimates.
+- [x] Verify actual Qwen target, KV-cache, and speculative generated token IDs match at three reduced prompt/output lengths on Colab T4; record preliminary acceptance, speed, and memory results. Target/draft vocabulary and special token IDs also match. A longer repeated benchmark is still needed for stable performance estimates.
 
 ## Application, paper and handoff
 

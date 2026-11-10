@@ -35,7 +35,7 @@
 - [x] Run `python scripts/benchmark_attention.py` on Colab Tesla T4. All six causal/noncausal cases passed numerical comparison (maximum absolute error 5.36e-7). Tiled implementation was slower in every tested case (2.58x–51.98x); measured memory differences were small and mixed. Results are recorded in `docs/reproducibility.md`.
 - [x] Run a reduced Colab T4 decoding smoke benchmark at input/output lengths 32/4, 64/4, and 128/8. All three methods produced identical target greedy token IDs at every length. One-repeat timings are preliminary; full measurements are in `docs/reproducibility.md`.
 - [x] Record throughput, peak allocated memory, draft acceptance, and relative timing for the reduced run. KV cache was fastest; speculative decoding was slower than KV cache and accepted all proposed tokens in these short cases.
-- [ ] Run the new explicit target/draft vocabulary check in `scripts/benchmark_decoding.py`; the prior Colab run used same-family models but did not perform this check in code.
+- [x] Verify target/draft tokenizer compatibility in Colab: vocabularies match and special token IDs match. The benchmark script now checks both before speculative decoding.
 
 ## Finish app and submission materials
 
@@ -61,5 +61,5 @@
 - The adapter zip was downloaded by the user. It still needs to be copied into the project artifacts / a durable model location.
 - Baseline/adapter validation JSON was generated in Colab; keep it private/out of Git because it contains patient notes and predictions. The held-out test split remains untouched.
 - User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
-- An initial Colab decoder benchmark attempt was interrupted during uncached generation. A reduced smoke run later completed; its one-repeat measurements are preliminary, and the explicit tokenizer equality check is pending. Target/draft weights are cached in that runtime.
+- An initial Colab decoder benchmark attempt was interrupted during uncached generation. A reduced smoke run later completed; its one-repeat measurements are preliminary, and the explicit tokenizer equality check has since passed. Target/draft weights are cached in that runtime.
 - The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.

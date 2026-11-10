@@ -18,7 +18,7 @@ See the repository README for setup, dataset manifest creation, LoRA fine-tuning
 
 ## Results ledger
 
-Colab training, validation, attention, and a reduced decoder smoke benchmark have run. The decoder timings are one-repeat exploratory measurements; a stable repeated benchmark, explicit tokenizer equality check, held-out test evaluation, and app demo remain pending. Keep generated data and raw patient notes out of version control.
+Colab training, validation, attention, and a reduced decoder smoke benchmark have run. The decoder timings are one-repeat exploratory measurements; a stable repeated benchmark, held-out test evaluation, and app demo remain pending. Keep generated data and raw patient notes out of version control.
 
 | Experiment | Status | Artifact |
 |---|---|---|
@@ -27,7 +27,7 @@ Colab training, validation, attention, and a reduced decoder smoke benchmark hav
 | Train/validation LoRA | Completed in Colab T4; train loss 0.1347, validation loss 0.04293; adapter zip downloaded by user | user-held zip; not in repo |
 | Baseline/adapter validation | Completed in Colab; metrics above; row-level JSON remains in runtime and was not checked into Git | ignored `artifacts/results/` |
 | Attention check/benchmark | Completed on Colab Tesla T4, CUDA; 2 warmups and 5 timed repeats per method; JSON remains in Colab | `artifacts/results/attention_benchmark.json` |
-| KV/speculative decoder benchmark | Reduced smoke run completed on Colab T4; all token IDs matched, but only one timing repeat was used. Explicit vocabulary check pending. | `artifacts/results/decoding_benchmark.json` in Colab runtime |
+| KV/speculative decoder benchmark | Reduced smoke run completed on Colab T4; all token IDs matched, but only one timing repeat was used. Target/draft vocabulary and special token IDs verified equal. | `artifacts/results/decoding_benchmark.json` in Colab runtime |
 | Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
 
 ### Tiled attention benchmark (Colab Tesla T4)
@@ -45,7 +45,7 @@ The reference and tiled online-softmax outputs passed the script's `allclose` ch
 
 These are small synthetic tensors, not model workload measurements. The launch/Python overhead dominates at these sizes; the results establish numerical agreement but do not demonstrate a speed or meaningful memory benefit. At the smallest shape the tiled path used slightly more measured memory; at larger shapes its measured savings were about 0.12–0.15 MiB. Treat timings as a single Colab T4 run, not a general hardware claim.
 
-The first Colab decoder-benchmark attempt was interrupted (`KeyboardInterrupt`) during the initial uncached generation. After reducing the synthetic cases and using one repeat, a smoke benchmark completed on CUDA device `cuda:0` with Qwen2.5-1.5B-Instruct as target and Qwen2.5-0.5B-Instruct as draft. Target uncached, KV-cached, and speculative greedy outputs matched exactly at all tested lengths. The script version used in this run did not explicitly compare tokenizer vocabularies; an explicit check has since been added to `scripts/benchmark_decoding.py` and still needs to be run.
+The first Colab decoder-benchmark attempt was interrupted (`KeyboardInterrupt`) during the initial uncached generation. After reducing the synthetic cases and using one repeat, a smoke benchmark completed on CUDA device `cuda:0` with Qwen2.5-1.5B-Instruct as target and Qwen2.5-0.5B-Instruct as draft. Target uncached, KV-cached, and speculative greedy outputs matched exactly at all tested lengths. A separate Colab check confirmed that target and draft tokenizers have identical vocabularies and special token IDs. The benchmark script now enforces this check before speculative decoding.
 
 | Input/output tokens | Mode | Median seconds* | Tokens/s | Peak allocated memory (GiB) | Draft accepted/proposed |
 |---|---|---:|---:|---:|---:|
