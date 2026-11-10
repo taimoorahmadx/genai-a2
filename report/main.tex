@@ -1,0 +1,62 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{cite,amsmath,booktabs,graphicx,url}
+\title{Reproducible Criterion-Level Clinical Trial Screening with an Open-Weight Transformer}
+\author{\IEEEauthorblockN{Student Author}\IEEEauthorblockA{Department and institution details to be completed}}
+\begin{document}
+\maketitle
+\begin{abstract}
+This paper describes an educational prototype for classifying individual clinical-trial criteria against patient descriptions and returning sentence-level evidence. The implementation uses the required TrialGPT Criterion Annotations data, a deterministic patient-grouped split, an open-weight autoregressive model interface, parameter-efficient supervised adaptation, and explicit implementations of cached decoding, tiled online-softmax attention, and greedy speculative decoding. At the time this draft was prepared, model training and held-out evaluation had not been run; therefore no predictive or performance results are claimed. This paper records the reproducible methods and identifies the experiments required before submission.
+\end{abstract}
+\begin{IEEEkeywords}clinical trial matching, language models, evidence retrieval, KV cache, online softmax, speculative decoding\end{IEEEkeywords}
+
+\section{Introduction}
+Trial eligibility criteria are expressed as natural-language constraints, while patient records contain a mixture of relevant findings and missing information. TrialGPT studies criterion-level matching and trial ranking with language models \cite{trialgpt}. This project implements an independent, locally executable educational system and focuses on traceable criterion labels, sentence IDs, and inference mechanics. It is not intended for clinical decisions.
+
+\section{Related Work}
+TrialGPT motivates separating criterion matching from downstream trial ranking \cite{trialgpt}. Low-Rank Adaptation (LoRA) reduces the number of trainable parameters through low-rank updates \cite{lora}. Transformer inference can reuse prior key/value states during autoregressive decoding. FlashAttention demonstrates that tiling with online softmax can compute exact attention while reducing memory traffic \cite{flashattn}. Speculative decoding drafts several tokens and verifies them with a target model while preserving greedy output under the corresponding greedy verification rule \cite{specdecode}. The selected Qwen2.5 model card documents its decoder architecture, parameter count, tokenizer and context length \cite{qwen}.
+
+\section{Materials and Methods}
+\subsection{Dataset and split}
+The benchmark is \texttt{ncbi/TrialGPT-Criterion-Annotations}, containing 1,015 criterion annotations and expert labels/evidence IDs \cite{dataset}. The preprocessing allowlists patient note, criterion type/text, expert category, and expert sentence IDs, excluding generated GPT-4 fields. Unique patient identifiers are sorted, permuted with NumPy \texttt{default\_rng(42)}, then assigned in groups of 37/8/8 to train, validation, and test. The program verifies coverage and non-overlap. Test examples are not materialized during preparation.
+
+\subsection{Model and adaptation}
+The default target is Qwen2.5-1.5B-Instruct: a 1.54B decoder-only model with RoPE and grouped-query attention, advertised 32,768-token context and Apache-2.0 license \cite{qwen}. Qwen2.5-0.5B-Instruct (0.49B) is the draft candidate; the Qwen2.5 family uses a unified tokenizer, and code checks actual vocabularies before speculative decoding. Phi-3.5-mini-instruct (3.8B, MIT, 128K context) is a larger alternative with higher expected weight and optimizer memory requirements \cite{phi}. Actual local compute is CPU-only (PyTorch 2.14.1); model weights were not downloaded and no fine-tuning was performed in the inspected environment. The training script applies LoRA to attention projections with rank 16, alpha 32 and dropout 0.05. It trains for three epochs with learning rate $2\times10^{-4}$, batch size one, eight gradient-accumulation steps and 4096 token maximum. Loss is masked on prompt tokens and applied to the serialized answer; checkpoint selection uses validation loss. The configuration is provisional until run and inspected.
+
+The model receives the patient note, criterion type and criterion text. It must return one of six exact expert categories: included, not included, not enough information, excluded, not excluded, or not applicable, plus sentence IDs and a concise explanation. Only IDs present in the parsed source note are retained. Truncation preserves the suffix of the prompt under the token budget; truncation can discard earlier note content and therefore is a limitation to quantify.
+
+\subsection{Evaluation and inference algorithms}
+Classification uses accuracy, macro-F1, per-category precision/recall/F1 and confusion matrices overall and by inclusion/exclusion. Evidence is scored by sentence-ID micro and macro precision/recall/F1; empty/empty per-record evidence sets receive one for precision and recall, while one-sided empty sets receive zero. A patient-level outcome, if shown, is an explicitly stated rule aggregation and is not a dataset label.
+
+The cached decoder prefills the prompt once, then forwards the newest token with the returned cache, an absolute position ID, and an attention mask covering cached and current positions. The uncached reference recomputes the full sequence each step. Tiled attention keeps running row maxima $m$, softmax normalizers $l$, and weighted-value accumulators $o$ while processing key blocks; outputs are checked against a direct scaled dot-product implementation. Greedy speculative decoding drafts a token block, verifies candidates with target logits, accepts the matching prefix, appends the target correction at first disagreement, and synchronizes cache state by re-prefilling emitted context. This conservative re-prefill favors clear state correctness and can reduce speed.
+
+\subsection{Application}
+The Streamlit application accepts numbered patient text and free-text inclusion/exclusion criteria, displays criterion category, explanation and evidence text, exposes a transparent aggregation rule and downloads a JSON report. It includes an educational-use notice and requires the local model to load successfully.
+
+\section{Experimental Setup and Results}
+No data download, model training, validation/test evaluation or model benchmark has yet been run. Accordingly, all result cells remain intentionally blank. The validation protocol compares the same cases with the base model and adapter. The final test split must be evaluated once only after settings are frozen. Inference experiments will compare uncached, KV-cached and speculative output token IDs, synchronized latency, throughput, peak accelerator memory, and draft acceptance. Attention checks include causal and noncausal shapes and max/mean absolute error. \texttt{scripts/benchmark\_attention.py} and \texttt{scripts/benchmark\_decoding.py} create the result tables when executed.
+
+\begin{table}[ht]
+\caption{Predictive and inference results pending execution.}
+\centering
+\begin{tabular}{lll}\toprule Measure & Validation & Test (final only)\\\midrule Accuracy & Pending & Pending\\Macro-F1 & Pending & Pending\\Evidence micro-F1 & Pending & Pending\\KV/cache throughput & Pending & Pending\\Speculative speedup & Pending & Pending\\\bottomrule\end{tabular}
+\end{table}
+
+\section{Limitations and Failure Analysis}
+The current implementation has not been trained or evaluated. The task's 53-patient sample is small; criterion labels are not independent across patients. Free-form generation can produce malformed or unsupported outputs despite JSON prompting and ID validation. Evidence annotations can be empty, and absent evidence must not be interpreted as proof of eligibility or ineligibility. At least eight distinct errors, contradictions, missing-information failures, and unsupported citations must be reviewed after model evaluation; none are fabricated in this draft. The report PDF, screenshots, model artifact, and demo recording are still external/finalization deliverables.
+
+\section{Conclusion}
+The repository provides a reproducible implementation scaffold covering data integrity, supervised adaptation, evidence-aware evaluation, model inference algorithms, and a browser application. Results and scientific conclusions await actual model runs and error review. The system remains an educational prototype and cannot determine enrollment eligibility.
+
+\section*{AI Use Acknowledgment}
+AI assistance supported repository scaffolding and implementation. The student must review and understand the code, perform the experiments, verify sources, and disclose AI use in the submitted work.
+
+\begin{thebibliography}{00}
+\bibitem{trialgpt} Q. Jin et al., ``Matching patients to clinical trials with large language models,'' \emph{Nature Communications}, vol. 15, 2024, doi: 10.1038/s41467-024-53081-z.
+\bibitem{dataset} NCBI, ``TrialGPT Criterion Annotations,'' Hugging Face Datasets. [Online]. Available: \url{https://huggingface.co/datasets/ncbi/TrialGPT-Criterion-Annotations}. Accessed: Nov. 10, 2026.
+\bibitem{qwen} Qwen Team, ``Qwen2.5-0.5B-Instruct Model Card.'' [Online]. Available: \url{https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct}. Accessed: Nov. 10, 2026.
+\bibitem{phi} Microsoft, ``Phi-3.5-mini-instruct Model Card.'' [Online]. Available: \url{https://huggingface.co/microsoft/Phi-3.5-mini-instruct}. Accessed: Nov. 10, 2026.
+\bibitem{lora} E. J. Hu et al., ``LoRA: Low-Rank Adaptation of Large Language Models,'' in \emph{Proc. ICLR}, 2022.
+\bibitem{flashattn} T. Dao et al., ``FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness,'' in \emph{Advances in Neural Information Processing Systems}, 2022.
+\bibitem{specdecode} Y. Leviathan, M. Kalman, and Y. Matias, ``Fast Inference from Transformers via Speculative Decoding,'' in \emph{Proc. ICML}, PMLR, vol. 202, 2023.
+\end{thebibliography}
+\end{document}
