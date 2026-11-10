@@ -27,7 +27,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [ ] Verify against actual target model at three prompt/output lengths and benchmark synchronized repeated runs, prefill/decode latency, throughput and peak memory.
 - [x] Implement reference scaled dot-product attention and tiled online-softmax attention.
 - [x] CPU numerical tests cover three shapes and causal/noncausal masks; max/mean error computed by benchmark script.
-- [ ] Execute attention timing/memory experiment on available CPU/GPU and record honest results.
+- [x] Execute attention timing/memory experiment on Colab Tesla T4; all six cases passed equivalence checks (maximum absolute error 5.36e-7). Tiled attention was 2.58x–51.98x slower on these small shapes, with small/mixed peak-memory differences. Full measurements are in `docs/reproducibility.md`.
 - [x] Implement greedy speculative decoding including target verification, correction after rejection, output/cache synchronization by re-prefill; local deterministic mock verifies mismatch correction.
 - [ ] Verify tokenizer files and generated token equality on Qwen target/draft; report acceptance, speed and memory on available hardware.
 

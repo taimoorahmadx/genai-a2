@@ -32,7 +32,7 @@
 
 ## Validate inference methods
 
-- [ ] Run `python scripts/benchmark_attention.py`; record numerical error, runtime, and memory on the available hardware.
+- [x] Run `python scripts/benchmark_attention.py` on Colab Tesla T4. All six causal/noncausal cases passed numerical comparison (maximum absolute error 5.36e-7). Tiled implementation was slower in every tested case (2.58x–51.98x); measured memory differences were small and mixed. Results are recorded in `docs/reproducibility.md`.
 - [ ] Run `python scripts/benchmark_decoding.py`; verify token equality for target greedy, cached, and speculative decoding.
 - [ ] Record prefill/decode time, throughput, peak memory, draft acceptance, and any speculative slowdown.
 - [ ] Check that target and draft tokenizer vocabularies match before speculative decoding.

@@ -18,7 +18,7 @@ See the repository README for setup, dataset manifest creation, LoRA fine-tuning
 
 ## Results ledger
 
-The Colab training and validation runs below are the only model experiments completed so far. No attention/decoder hardware benchmark, held-out test evaluation, or app demo has run. Attention correctness has local CPU unit coverage; decoder equivalence on actual model weights is not claimed yet. Keep generated data and raw patient notes out of version control.
+The Colab training, validation, and synthetic attention benchmark below are the only GPU experiments completed so far. No decoder hardware benchmark, held-out test evaluation, or app demo has run. Decoder equivalence on actual model weights is not claimed yet. Keep generated data and raw patient notes out of version control.
 
 | Experiment | Status | Artifact |
 |---|---|---|
@@ -26,7 +26,22 @@ The Colab training and validation runs below are the only model experiments comp
 | Fixed patient manifest | Generated and checked in Colab; manifest not copied to this repo yet | `data/splits/patient_split_seed42.json` |
 | Train/validation LoRA | Completed in Colab T4; train loss 0.1347, validation loss 0.04293; adapter zip downloaded by user | user-held zip; not in repo |
 | Baseline/adapter validation | Completed in Colab; metrics above; row-level JSON remains in runtime and was not checked into Git | ignored `artifacts/results/` |
-| Attention check/benchmark | Unit test available; timings not run | ignored `artifacts/results/` |
+| Attention check/benchmark | Completed on Colab Tesla T4, CUDA; 2 warmups and 5 timed repeats per method; JSON remains in Colab | `artifacts/results/attention_benchmark.json` |
 | KV/speculative decoder benchmark | Not run; model dependency/weights absent | ignored `artifacts/results/` |
 | Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
+
+### Tiled attention benchmark (Colab Tesla T4)
+
+The reference and tiled online-softmax outputs passed the script's `allclose` check in all six cases. Maximum absolute error was `5.3644e-7`; mean absolute errors ranged from `2.4397e-8` to `2.7728e-8`. Times below are median seconds over five repeats after two warmups. The tiled Python implementation was slower in every tested shape; the speed ratio is tiled/reference. Peak memory is PyTorch allocated bytes as measured by the script.
+
+| Query/key length, head dim | Mask | Max abs. error | Reference ms | Tiled ms | Tiled/reference | Peak memory, ref / tiled MiB |
+|---|---:|---:|---:|---:|---:|---:|
+| 32/32, 64 | noncausal | 5.36e-7 | 0.179 | 0.784 | 4.38x | 8.34 / 8.44 |
+| 32/32, 64 | causal | 3.58e-7 | 0.324 | 0.836 | 2.58x | 8.34 / 8.44 |
+| 64/128, 64 | noncausal | 2.98e-7 | 0.202 | 4.983 | 24.68x | 8.87 / 8.75 |
+| 64/128, 64 | causal | 2.98e-7 | 0.322 | 5.782 | 17.97x | 8.87 / 8.75 |
+| 128/128, 128 | noncausal | 4.77e-7 | 0.190 | 9.889 | 51.98x | 10.12 / 9.97 |
+| 128/128, 128 | causal | 3.58e-7 | 0.314 | 11.168 | 35.53x | 10.12 / 9.97 |
+
+These are small synthetic tensors, not model workload measurements. The launch/Python overhead dominates at these sizes; the results establish numerical agreement but do not demonstrate a speed or meaningful memory benefit. At the smallest shape the tiled path used slightly more measured memory; at larger shapes its measured savings were about 0.12–0.15 MiB. Treat timings as a single Colab T4 run, not a general hardware claim.
 
