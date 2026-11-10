@@ -18,7 +18,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] GPU LoRA training completed on Colab Tesla T4 for 3 epochs / 228 steps; reported train loss 0.1347 and best/final validation loss 0.04293. User downloaded adapter zip. Training log and artifact are not yet in repository; truncation still needs review.
 - [x] Implement baseline/adapter evaluation on identical selected split, class/evidence metrics, inclusion/exclusion breakdowns and empty evidence policy.
 - [x] Run baseline and adapter on the same 206 validation annotations. Baseline accuracy/macro-F1 0.262/0.111; adapter 0.723/0.356. Adapter evidence micro-F1 0.429 (baseline 0). Adapter is biased toward `not excluded`; per-class failure review remains required.
-- [ ] One-time final test evaluation after settings are frozen; outputs will be ignored until reviewed and then selectively published.
+- [ ] One-time final test evaluation after settings were frozen. Attempted in Colab but blocked by GPU usage limits before producing results; no test metrics exist yet. Rerun once GPU access returns, then selectively report aggregate metrics only.
 - [x] Include per-example predictions and error fields in evaluation artifacts; review eight validation error examples. All eight gold `not enough information` labels were predicted as `not excluded`; several cited irrelevant or incomplete evidence. They came from only three patient notes, so these are eight criterion-level errors, not eight independent patient cases. Broader, patient-diverse error analysis remains advisable.
 
 ## Inference engineering
@@ -37,7 +37,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] Build interactive model-backed inference comparison page; it measures uncached, cached and speculative paths and verifies output equality when run.
 - [x] Add setup/reproduction instructions, optional dependencies, data handling and model download path.
 - [x] Create IEEE LaTeX report draft with methods, references, result placeholders and limitations; no values/citations or completed work are fabricated.
-- [ ] Populate report with real runs, analyzed figures/tables, author/repository details, eight-case analysis and AI-use acknowledgement; compile report PDF.
+- [ ] Complete report metadata (author/institution/repository URL), compile and review PDF. Measured validation and benchmark results, the eight-example caveat, and AI-use acknowledgement are already in the draft; final test results remain pending.
 - [ ] Capture screenshots and record 5–7 minute demo. **External**.
 - [ ] Publish repository and model adapter download, submit via Google Classroom, and attend live evaluation. **External**.
 

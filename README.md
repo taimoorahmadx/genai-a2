@@ -4,7 +4,7 @@ An educational, reproducible research prototype for criterion-level screening on
 
 ## Current state
 
-The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, a synthetic attention benchmark, and a reduced one-repeat decoder smoke benchmark have run. The final test, robust decoder benchmark, app/demo verification, and submission remain pending. See `docs/reproducibility.md` for measured results and limitations.
+The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, a synthetic attention benchmark, and a reduced one-repeat decoder smoke benchmark have run. The final test was attempted after freezing settings but could not start because Colab GPU access was quota-limited. The adapter archive is present locally as an ignored file; never commit it or patient-level outputs. See `docs/reproducibility.md` for measured results and limitations.
 
 ## Setup
 

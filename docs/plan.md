@@ -32,9 +32,9 @@ Deliver a reproducible Transformer-based clinical-trial criterion screening syst
 
 ## Current implementation boundary
 
-Implemented: preprocessing/split code, LoRA training and evaluation scripts, attention and decoder algorithms, a Streamlit app with interactive benchmark page, and an IEEE report draft. Local CPU algorithm checks pass. Dataset preparation, model acquisition, training, actual-model benchmarks, final test evaluation, report PDF and demo are pending. See `docs/tasks.md`.
+Implemented: preprocessing/split code, LoRA training and evaluation scripts, attention and decoder algorithms, a Streamlit app with interactive benchmark page, and an IEEE report draft. Dataset preparation, LoRA training, validation evaluation, synthetic T4 attention benchmarking, and a reduced T4 decoder smoke benchmark have completed. The final test was attempted after freezing settings but could not start because Colab GPU access was quota-limited. The report PDF, app-backed demo, and external submission remain unfinished. See `docs/tasks.md` and `todo.md` for the current checklist.
 
-The inspected local runtime is CPU-only (PyTorch 2.14.1); Transformers/PEFT are not installed. Model training and inference measurements need a suitable free GPU or a deliberate local feasibility run. No paid service is required.
+The inspected local runtime is CPU-only (PyTorch 2.14.1); Transformers/PEFT are not installed. GPU-dependent final evaluation and full model-backed app/benchmark checks need Colab or university GPU access. No paid service is required. Colab access is currently blocked by usage limits, so use the waiting period for report metadata and demo preparation.
 
 ## Completion boundary
 
