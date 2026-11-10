@@ -24,5 +24,5 @@ No model training, benchmark, held-out evaluation, or app demo has yet run. Cons
 | Baseline/adapter evaluation | Not run | ignored `artifacts/results/` |
 | Attention check/benchmark | Unit test available; timings not run | ignored `artifacts/results/` |
 | KV/speculative decoder benchmark | Not run; model dependency/weights absent | ignored `artifacts/results/` |
-| Browser demo | UI implemented; model-backed interaction not run | external video pending |
+| Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
 
