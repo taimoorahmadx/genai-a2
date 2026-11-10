@@ -42,15 +42,15 @@
 - [ ] Start the app with `streamlit run app.py` in an environment that permits local network sockets.
 - [ ] Try an unseen patient note and inclusion/exclusion criteria; verify cited sentence text and JSON export.
 - [ ] Run the inference comparison page with downloaded target and draft model weights.
-- [ ] Finish report metadata (author/institution/repository URL), compile and review PDF. Measured validation/benchmark results, error analysis and AI-use acknowledgement are already included; final test results remain pending.
-- [ ] Compile `report/main.tex` to PDF and review the PDF.
+- [x] Fill report metadata (Taimoor Ahmad, Computer Science, FAST NUCES, repository URL); measured validation/benchmark results, error analysis and AI-use acknowledgement are included.
+- [ ] Compile `report/main.tex` to PDF and review it; no LaTeX compiler is installed in this environment.
 - [ ] Capture application screenshots and record the required 5–7 minute demo.
 - [ ] Publish the repository and provide a model adapter download path.
 - [ ] Submit the report/project through Google Classroom and attend the live evaluation.
 
 ## Current blockers
 
-- This workspace has CPU-only PyTorch and no Transformers/PEFT installation; no dataset or model weights have been downloaded.
+- This workspace has CPU-only PyTorch and no Transformers/PEFT installation; the trained adapter zip is local but ignored, while base/draft model weights and the dataset are unavailable locally.
 - The sandbox denied Streamlit's local socket bind, so app startup must be checked in a normal local or hosted environment.
 - `pdflatex` is unavailable here, so the report PDF must be compiled elsewhere.
 
@@ -58,7 +58,7 @@
 
 - GPU: Tesla T4; training used FP16 after a Colab-only script adjustment for Transformers 5 and T4 precision.
 - Training completed: train loss 0.1347; final validation loss 0.04293. These are language-model losses, not eligibility metrics.
-- The adapter zip was downloaded by the user. It still needs to be copied into the project artifacts / a durable model location.
+- The adapter zip was downloaded and is available locally as an ignored file. It is intentionally not in Git; preserve it somewhere durable for re-upload to Colab.
 - Baseline/adapter validation JSON was generated in Colab; keep it private/out of Git because it contains patient notes and predictions. The held-out test split remains untouched.
 - User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
 - An initial Colab decoder benchmark attempt was interrupted during uncached generation. A reduced smoke run later completed; its one-repeat measurements are preliminary, and the explicit tokenizer equality check has since passed. Target/draft weights are cached in that runtime.
