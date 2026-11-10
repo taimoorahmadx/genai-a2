@@ -1,6 +1,5 @@
-# Next
+# Current handoff
 
-In the next chat, tell the assistant: **“Implement Assignment 2 using `docs/plan.md` and `docs/tasks.md`; complete the repository work.”**
+Implementation is underway per the user's request. Use `docs/plan.md`, `docs/tasks.md`, and `docs/reproducibility.md` for current scope and pending steps. The earlier setup-only instruction has been superseded by the explicit implementation request.
 
-Only external steps expected later: provide/run a free GPU session if the chosen training setup requires interactive access, record the 5–7 minute demo, submit the report/project through Google Classroom, and attend the live demo. We’ll confirm the actual GPU need after checking hardware and model options.
-
+Next steps requiring model/data downloads and preferably free accelerator access: install `.[data,model,app,dev]`, run `scripts/prepare_data.py`, inspect the split manifest/counts without committing patient notes, train LoRA and select by validation loss, run baseline/adapter validation, then run final test once after settings are frozen. Run model-backed decode/attention benchmarks, update the report with real results, compile the PDF, record the demo, and submit externally.
