@@ -13,9 +13,9 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 
 - [x] Schema allowlist preprocessing: prior GPT-4 fields cannot flow into prompts or train rows; six labels and expert sentence IDs retained.
 - [x] Deterministic patient split/manifest implementation and no-leak checks (37/8/8, NumPy seed 42).
-- [ ] Run dataset preparation and commit only the non-sensitive split manifest; keep patient notes out of git. Not run because no dataset was available locally and no download was made.
+- [x] Run dataset preparation in Colab: 37/8/8 patients, 603/206/206 annotations; leakage check passed. Copy the split manifest into the repo later; keep patient notes out of git.
 - [x] Implement LoRA supervised training with answer-only loss, structured output, documented prompt/truncation/config.
-- [ ] GPU training, inspect truncation and loss curves, preserve best validation checkpoint; implementation has not been executed against downloaded dependencies/data.
+- [x] GPU LoRA training completed on Colab Tesla T4 for 3 epochs / 228 steps; reported train loss 0.1347 and best/final validation loss 0.04293. User downloaded adapter zip. Training log and artifact are not yet in repository; truncation still needs review.
 - [x] Implement baseline/adapter evaluation on identical selected split, class/evidence metrics, inclusion/exclusion breakdowns and empty evidence policy.
 - [ ] Run validation baseline and tuned model; do not access test for model selection.
 - [ ] One-time final test evaluation after settings are frozen; outputs will be ignored until reviewed and then selectively published.

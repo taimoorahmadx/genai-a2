@@ -14,15 +14,16 @@
 ## Next: prepare data and environment
 
 - [ ] On an environment with dataset access, install project dependencies: `pip install -e '.[data,model,app,dev]'`.
-- [ ] Run `python scripts/prepare_data.py`.
-- [ ] Check the generated patient counts and leakage check in `data/splits/patient_split_seed42.json`.
+- [x] Run `python scripts/prepare_data.py` in Colab.
+- [x] Verify split: 37/8/8 patients, 603/206/206 annotations, leakage check passed. Manifest is currently in the Colab runtime; copy it into the repository later.
 - [ ] Keep patient notes and generated data out of Git; commit only the split manifest if appropriate.
 - [ ] Confirm the free GPU has enough memory for the 1.54B target, 0.49B draft, and LoRA training.
 
 ## Train and evaluate
 
-- [ ] Run `python scripts/train_lora.py` on the training split.
-- [ ] Inspect training logs, validation loss, and examples affected by 4096-token truncation.
+- [x] Run `python scripts/train_lora.py` on the T4 GPU for 3 epochs (228 steps; about 11m37s).
+- [x] Save/download the trained adapter zip from Colab. It is not yet in this repository.
+- [ ] Preserve the training log and inspect examples affected by 4096-token truncation.
 - [ ] Run baseline and adapter evaluation on validation: `python scripts/evaluate.py --split validation` (add `--adapter PATH` for the adapter).
 - [ ] Review label and evidence errors; document at least eight distinct real failures, including missing-information and unsupported-evidence cases.
 - [ ] Freeze model and settings before final test evaluation.
@@ -52,3 +53,10 @@
 - This workspace has CPU-only PyTorch and no Transformers/PEFT installation; no dataset or model weights have been downloaded.
 - The sandbox denied Streamlit's local socket bind, so app startup must be checked in a normal local or hosted environment.
 - `pdflatex` is unavailable here, so the report PDF must be compiled elsewhere.
+
+## Latest Colab run (Nov. 10, 2026)
+
+- GPU: Tesla T4; training used FP16 after a Colab-only script adjustment for Transformers 5 and T4 precision.
+- Training completed: train loss 0.1347; final validation loss 0.04293. These are language-model losses, not eligibility metrics.
+- The adapter zip was downloaded by the user. It still needs to be copied into the project artifacts / a durable model location.
+- The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.
