@@ -4,7 +4,9 @@ An educational, reproducible research prototype for criterion-level screening on
 
 ## Current state
 
-The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, synthetic attention and reduced decoder benchmarks, and the one-time held-out test on Kaggle have run. The adapter archive is present locally as an ignored file; never commit it or patient-level outputs. See `docs/reproducibility.md` for measured results and limitations.
+The repository contains leakage-aware data preparation, LoRA training and evaluation, explicit uncached/KV-cached/speculative decoding, tiled online-softmax attention, a Streamlit browser app, interactive benchmarks, and an IEEE LaTeX report. Training and validation ran on a Colab T4; synthetic attention and reduced decoding benchmarks ran on Colab; the frozen held-out test ran once on Kaggle. The compiled report is `report/genai_a2_report.pdf`.
+
+This is an educational research prototype, not a clinical decision system. Some submission evidence is still external or unavailable: the split manifest and benchmark JSON logs remain in hosted runtimes, the adapter is a local ignored file and has no published download link, the browser app has not been verified end to end, and no application screenshots or demo video are included. Step-wise training logs were not retained, so a training curve cannot be reconstructed. See `docs/reproducibility.md` for measured results and limitations; see the checklist below before submission.
 
 ## Setup
 
@@ -14,7 +16,7 @@ source .venv/bin/activate
 pip install -e '.[data,model,app,dev]'
 ```
 
-The inspected development environment was Linux x86_64, Python 3.10.12, PyTorch 2.14.1 CPU-only, NumPy, scikit-learn, FastAPI and Streamlit available. Transformers, PEFT and Accelerate were absent. This CPU-only environment is useful for data prep and algorithm checks; it is not treated as evidence of feasible 0.5B fine-tuning.
+The development environment inspected for this project was Linux x86_64, Python 3.10.12, PyTorch 2.14.1 CPU-only. GPU training results were obtained separately on Colab T4. A CPU-only environment is suitable for data prep and small algorithm checks, not evidence that fine-tuning is feasible there.
 
 ## Dataset and fixed split
 
@@ -56,19 +58,49 @@ python scripts/benchmark_attention.py
 python scripts/benchmark_decoding.py
 ```
 
-The attention implementation is CPU-tested and has a Colab T4 synthetic benchmark. A reduced T4 decoder smoke benchmark verified output token equality at three lengths, but used one timing repeat; cached decoding was fastest and speculative decoding did not beat it. The benchmark now checks target/draft vocabulary equality; run it before the next speculative experiment. The implementation re-prefills caches after verification rounds for correctness and may be slow. See `docs/reproducibility.md`; generated result files are ignored because they may contain sensitive data.
+The attention implementation was numerically compared with the reference on six synthetic causal/noncausal cases on a Colab T4. A reduced decoder smoke benchmark verified output token equality at three lengths, but used one timing repeat; KV caching was fastest and speculative decoding did not beat it. The implementation re-prefills caches after verification rounds for correctness and may be slow. See `docs/reproducibility.md`. Result JSON files are not in the repository; keep any row-level evaluation outputs private because they contain patient notes.
 
 ## Browser application
 
 ```bash
+cd /home/user/Desktop/genai-a2
+source .venv/bin/activate
+pip install -e '.[model,app]'
 streamlit run app.py
 ```
 
-Enter numbered patient sentences and one criterion per line (prefix `inclusion:` or `exclusion:`). The app loads the specified local/open Hugging Face model, displays category, explanation and evidence text, describes its transparent heuristic aggregation, and exports JSON. It requires network access for first-time model download unless weights are cached locally. No fake/static prediction is shown when loading fails.
+Enter numbered patient sentences and one criterion per line (prefix `inclusion:` or `exclusion:`). The app loads the specified Hugging Face model and optional local adapter, displays category, explanation and evidence text, describes its transparent rule-based aggregation, and exports JSON. It requires network access for first-time model download unless weights are cached locally. The browser workflow has not yet been verified end to end with model weights. No fake/static prediction is shown when loading fails.
+
+### Recording the application demo
+
+Use a machine with enough RAM/GPU memory for Qwen2.5-1.5B. First-time model download requires internet and can take several minutes. To use the trained adapter, extract the adapter archive to a directory and enter that directory in the app's **Optional local LoRA adapter path** field. Do not upload patient data or adapter weights into GitHub.
+
+Suggested 5–7 minute recording:
+
+1. Show the repository and briefly point out the app, training/evaluation scripts, and report.
+2. Run `streamlit run app.py`, open the local URL printed in the terminal, and show the educational-use and missing-information notices.
+3. Enter a short synthetic numbered patient note and two criteria, one prefixed `inclusion:` and one `exclusion:`. Run screening; explain the displayed label, cited sentence IDs/text, and rule-based overall summary. Do not present the output as medical advice.
+4. Download and open the JSON report to show the exported criterion results and notice.
+5. Open **Inference benchmarks** from Streamlit's page navigation. Enter a short prompt and run the comparison; show token agreement, latency, throughput, memory availability, and speculative acceptance. This page loads both target and draft models and may exceed laptop resources; if it fails, report that honestly and show the measured smoke results in the report instead of claiming a live run.
+6. Close by showing the report's limitations and the documented class-bias/slowdown findings.
+
+Use only synthetic example text in the recording. Do not claim an end-to-end run succeeded until you have seen the predictions and downloaded the JSON yourself.
 
 ## Report and submission
 
-See `report/main.tex` and `docs/reproducibility.md`. The report draft includes author/repository details, a system workflow diagram, validation and held-out test results, inference results, error analysis, and limitations. A repeated decoder benchmark, compiled PDF review, adapter distribution, and app demo remain pending. The step-wise training log was not preserved, so no training curve is reported. Record the demo and submit through Classroom externally.
+The source is `report/main.tex`; the compiled three-page PDF is `report/genai_a2_report.pdf`. The paper includes author/repository details, a system workflow diagram, validation and held-out test results, inference results, error analysis, and limitations. The decoder timings are a one-repeat smoke benchmark, not a repeated robust benchmark. The report notes that the step-wise training log was not preserved, so no training curve is reported. The compiled report has been visually reviewed; its limitations text still lists the report PDF as pending and should be corrected in LaTeX before final submission. Publish an adapter download link, capture app screenshots, record the demo, and submit through Classroom externally.
+
+## Submission checklist (excluding the required video)
+
+- [x] Source code, dependency specification, data preparation, training/evaluation scripts, inference implementations, browser app source, and reproducibility instructions are in this repository.
+- [x] IEEE LaTeX source and compiled PDF are present.
+- [x] Training, validation, attention, reduced decoding, and one-time held-out test experiments were run and their available aggregate results are documented.
+- [ ] Publish the fixed split manifest (patient IDs and counts) from the hosted runtime; do not include patient notes.
+- [ ] Publish benchmark JSON logs or export safe aggregate logs from the hosted runtimes.
+- [ ] Publish the trained adapter somewhere durable and add a working download link; do not commit model weights to Git.
+- [ ] Verify the app end to end with an unseen input, evidence display, invalid input, JSON export, and benchmark page; capture screenshots.
+- [ ] Correct the stale “report PDF ... remain pending” wording in `report/main.tex`, recompile, and replace the PDF.
+- [ ] Submit the PDF and repository URL through Google Classroom and prepare for the live technical defense.
 
 ## AI-use acknowledgement
 
