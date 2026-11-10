@@ -27,7 +27,7 @@ The Colab training, validation, and synthetic attention benchmark below are the 
 | Train/validation LoRA | Completed in Colab T4; train loss 0.1347, validation loss 0.04293; adapter zip downloaded by user | user-held zip; not in repo |
 | Baseline/adapter validation | Completed in Colab; metrics above; row-level JSON remains in runtime and was not checked into Git | ignored `artifacts/results/` |
 | Attention check/benchmark | Completed on Colab Tesla T4, CUDA; 2 warmups and 5 timed repeats per method; JSON remains in Colab | `artifacts/results/attention_benchmark.json` |
-| KV/speculative decoder benchmark | Not run; model dependency/weights absent | ignored `artifacts/results/` |
+| KV/speculative decoder benchmark | Colab attempt interrupted before results; model dependencies and weights are cached in that runtime | `artifacts/results/decoding_benchmark.json` not created |
 | Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
 
 ### Tiled attention benchmark (Colab Tesla T4)
@@ -44,4 +44,6 @@ The reference and tiled online-softmax outputs passed the script's `allclose` ch
 | 128/128, 128 | causal | 3.58e-7 | 0.314 | 11.168 | 35.53x | 10.12 / 9.97 |
 
 These are small synthetic tensors, not model workload measurements. The launch/Python overhead dominates at these sizes; the results establish numerical agreement but do not demonstrate a speed or meaningful memory benefit. At the smallest shape the tiled path used slightly more measured memory; at larger shapes its measured savings were about 0.12–0.15 MiB. Treat timings as a single Colab T4 run, not a general hardware claim.
+
+The first Colab decoder-benchmark attempt was interrupted (`KeyboardInterrupt`) during the initial uncached generation, before any benchmark result was written. The target and draft models finished downloading and should be cached in that Colab runtime. No decoder timing or token-equivalence result is available yet.
 

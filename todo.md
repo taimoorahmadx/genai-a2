@@ -61,4 +61,5 @@
 - The adapter zip was downloaded by the user. It still needs to be copied into the project artifacts / a durable model location.
 - Baseline/adapter validation JSON was generated in Colab; keep it private/out of Git because it contains patient notes and predictions. The held-out test split remains untouched.
 - User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
+- The first Colab decoder benchmark attempt was interrupted (`KeyboardInterrupt`) during its initial uncached generation; no benchmark JSON or decoder metrics were produced. Target/draft weights are now cached in that runtime.
 - The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.
