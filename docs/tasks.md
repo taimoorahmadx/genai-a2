@@ -19,7 +19,7 @@ Status symbols: **Implemented** means repository code/docs exist; **Validated lo
 - [x] Implement baseline/adapter evaluation on identical selected split, class/evidence metrics, inclusion/exclusion breakdowns and empty evidence policy.
 - [x] Run baseline and adapter on the same 206 validation annotations. Baseline accuracy/macro-F1 0.262/0.111; adapter 0.723/0.356. Adapter evidence micro-F1 0.429 (baseline 0). Adapter is biased toward `not excluded`; per-class failure review remains required.
 - [ ] One-time final test evaluation after settings are frozen; outputs will be ignored until reviewed and then selectively published.
-- [x] Include per-example predictions and error fields in evaluation artifacts. **Pending:** review and document at least eight real errors/contradictions/missing-information and unsupported-evidence cases; this has not yet been done.
+- [x] Include per-example predictions and error fields in evaluation artifacts; review eight validation error examples. All eight gold `not enough information` labels were predicted as `not excluded`; several cited irrelevant or incomplete evidence. They came from only three patient notes, so these are eight criterion-level errors, not eight independent patient cases. Broader, patient-diverse error analysis remains advisable.
 
 ## Inference engineering
 

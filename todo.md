@@ -25,7 +25,7 @@
 - [x] Save/download the trained adapter zip from Colab. It is not yet in this repository.
 - [ ] Preserve the training log and inspect examples affected by 4096-token truncation.
 - [x] Run baseline and adapter evaluation on the same 206 validation examples. Baseline: accuracy 0.262, macro-F1 0.111, evidence micro-F1 0. Adapter: accuracy 0.723, macro-F1 0.356, evidence micro-F1 0.429. Adapter label outputs are strongly biased toward `not excluded`; investigate before drawing conclusions.
-- [ ] Review label and evidence errors; document at least eight distinct real failures, including missing-information and unsupported-evidence cases.
+- [x] Review eight validation label/evidence errors. All eight were gold `not enough information` predicted as `not excluded`; several had irrelevant or incomplete evidence IDs. The sample spans only three patient notes, so it is not eight independent patient cases. Review more diverse cases before final conclusions.
 - [ ] Freeze model and settings before final test evaluation.
 - [ ] Run the held-out test once: `python scripts/evaluate.py --split test --final-test`.
 - [ ] Save and review real metrics and prediction artifacts; do not report unrun results.
