@@ -18,7 +18,7 @@ See the repository README for setup, dataset manifest creation, LoRA fine-tuning
 
 ## Results ledger
 
-The Colab training, validation, and synthetic attention benchmark below are the only GPU experiments completed so far. No decoder hardware benchmark, held-out test evaluation, or app demo has run. Decoder equivalence on actual model weights is not claimed yet. Keep generated data and raw patient notes out of version control.
+Colab training, validation, attention, and a reduced decoder smoke benchmark have run. The decoder timings are one-repeat exploratory measurements; a stable repeated benchmark, explicit tokenizer equality check, held-out test evaluation, and app demo remain pending. Keep generated data and raw patient notes out of version control.
 
 | Experiment | Status | Artifact |
 |---|---|---|
@@ -27,7 +27,7 @@ The Colab training, validation, and synthetic attention benchmark below are the 
 | Train/validation LoRA | Completed in Colab T4; train loss 0.1347, validation loss 0.04293; adapter zip downloaded by user | user-held zip; not in repo |
 | Baseline/adapter validation | Completed in Colab; metrics above; row-level JSON remains in runtime and was not checked into Git | ignored `artifacts/results/` |
 | Attention check/benchmark | Completed on Colab Tesla T4, CUDA; 2 warmups and 5 timed repeats per method; JSON remains in Colab | `artifacts/results/attention_benchmark.json` |
-| KV/speculative decoder benchmark | Colab attempt interrupted before results; model dependencies and weights are cached in that runtime | `artifacts/results/decoding_benchmark.json` not created |
+| KV/speculative decoder benchmark | Reduced smoke run completed on Colab T4; all token IDs matched, but only one timing repeat was used. Explicit vocabulary check pending. | `artifacts/results/decoding_benchmark.json` in Colab runtime |
 | Browser demo | UI implemented; model-backed interaction not run. Streamlit startup smoke attempt was blocked when sandbox denied local socket bind (`PermissionError`). | external video pending |
 
 ### Tiled attention benchmark (Colab Tesla T4)
@@ -45,5 +45,19 @@ The reference and tiled online-softmax outputs passed the script's `allclose` ch
 
 These are small synthetic tensors, not model workload measurements. The launch/Python overhead dominates at these sizes; the results establish numerical agreement but do not demonstrate a speed or meaningful memory benefit. At the smallest shape the tiled path used slightly more measured memory; at larger shapes its measured savings were about 0.12–0.15 MiB. Treat timings as a single Colab T4 run, not a general hardware claim.
 
-The first Colab decoder-benchmark attempt was interrupted (`KeyboardInterrupt`) during the initial uncached generation, before any benchmark result was written. The target and draft models finished downloading and should be cached in that Colab runtime. No decoder timing or token-equivalence result is available yet.
+The first Colab decoder-benchmark attempt was interrupted (`KeyboardInterrupt`) during the initial uncached generation. After reducing the synthetic cases and using one repeat, a smoke benchmark completed on CUDA device `cuda:0` with Qwen2.5-1.5B-Instruct as target and Qwen2.5-0.5B-Instruct as draft. Target uncached, KV-cached, and speculative greedy outputs matched exactly at all tested lengths. The script version used in this run did not explicitly compare tokenizer vocabularies; an explicit check has since been added to `scripts/benchmark_decoding.py` and still needs to be run.
+
+| Input/output tokens | Mode | Median seconds* | Tokens/s | Peak allocated memory (GiB) | Draft accepted/proposed |
+|---|---|---:|---:|---:|---:|
+| 32/4 | Uncached | 0.3682 | 10.86 | 3.815 | — |
+| 32/4 | KV cached | 0.1986 | 20.14 | 3.816 | — |
+| 32/4 | Speculative | 0.3097 | 12.92 | 3.825 | 4/4 |
+| 64/4 | Uncached | 0.5572 | 7.18 | 3.821 | — |
+| 64/4 | KV cached | 0.2052 | 19.49 | 3.823 | — |
+| 64/4 | Speculative | 0.3242 | 12.34 | 3.841 | 4/4 |
+| 128/8 | Uncached | 1.7165 | 4.66 | 3.845 | — |
+| 128/8 | KV cached | 0.4228 | 18.92 | 3.849 | — |
+| 128/8 | Speculative | 0.8797 | 9.09 | 3.893 | 8/8 |
+
+*One measured repeat after one warmup; not a robust median estimate despite the output field name. KV cache was 1.85x, 2.72x, and 4.06x faster than uncached decoding at the three tested input lengths. Speculative decoding was slower than KV caching by 1.56x, 1.58x, and 2.08x, although it was faster than uncached in these runs. All draft tokens were accepted, but the generated token sequence was highly repetitive and outputs were very short. These synthetic smoke-test results do not establish typical speculative acceptance or production performance. The measured peak memory includes model allocations and rose from about 3.82 to 3.89 GiB; speculative mode had the highest peak. A longer multi-repeat benchmark with representative prompts and outputs is still needed.
 

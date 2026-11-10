@@ -17,7 +17,9 @@ def run(fn,device,repeats):
     return result,sorted(vals)[len(vals)//2],torch.cuda.max_memory_allocated(device) if device.type=="cuda" else None
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--model",default=MODEL_ID); p.add_argument("--draft",default="Qwen/Qwen2.5-0.5B-Instruct"); p.add_argument("--repeats",type=int,default=5); a=p.parse_args()
-    tok,target=load_model(a.model); _,draft=load_model(a.draft); device=next(target.parameters()).device
+    tok,target=load_model(a.model); draft_tok,draft=load_model(a.draft); device=next(target.parameters()).device
+    if tok.get_vocab()!=draft_tok.get_vocab() or tok.all_special_ids!=draft_tok.all_special_ids:
+        raise ValueError("Target and draft tokenizers differ; speculative decoding requires matching token IDs")
     data=[]
     for in_len,out_len in [(32,16),(128,32),(512,64)]:
         ids=tok("A patient record and criterion. "+"clinical detail "*in_len,return_tensors="pt",truncation=True,max_length=in_len).input_ids.to(device)

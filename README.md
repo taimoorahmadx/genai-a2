@@ -4,7 +4,7 @@ An educational, reproducible research prototype for criterion-level screening on
 
 ## Current state
 
-The repository now contains data handling, the required deterministic split generator, a LoRA training path, criterion/evidence evaluation, cache-aware and uncached greedy decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. No model download, GPU training, benchmark, test-set evaluation, application recording, or final submission has been performed. Results are not claimed until corresponding scripts are run and artifacts reviewed.
+The repository contains data handling, the deterministic split generator, LoRA training and evaluation, cache-aware and uncached decoding, online-softmax attention, speculative decoding, a browser app, benchmarks, and an IEEE LaTeX report draft. Colab T4 training and validation, a synthetic attention benchmark, and a reduced one-repeat decoder smoke benchmark have run. The final test, robust decoder benchmark, app/demo verification, and submission remain pending. See `docs/reproducibility.md` for measured results and limitations.
 
 ## Setup
 
@@ -28,7 +28,7 @@ Patient IDs are sorted, shuffled using `numpy.random.default_rng(42)`, then spli
 
 ## Model and training
 
-Default target: `Qwen/Qwen2.5-1.5B-Instruct` (Apache-2.0, 1.54B parameters, decoder-only, RoPE, GQA, 32,768 context). Draft candidate: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0, 0.49B parameters). The Qwen2.5 family advertises a unified tokenizer; the benchmark and app compare vocabularies before speculative decoding. `microsoft/Phi-3.5-mini-instruct` is an alternative at 3.8B, MIT, and 128K context, with a higher weight/activation memory burden. The target's fp16 weights alone require roughly 3.1 GB before KV cache, activations and framework overhead; the 0.5B draft adds roughly 1 GB at fp16. GPU LoRA feasibility must be measured on the free environment actually used.
+Default target: `Qwen/Qwen2.5-1.5B-Instruct` (Apache-2.0, 1.54B parameters, decoder-only, RoPE, GQA, 32,768 context). Draft candidate: `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0, 0.49B parameters). The Qwen2.5 family advertises a unified tokenizer; the benchmark and app compare vocabularies before speculative decoding. `microsoft/Phi-3.5-mini-instruct` is an alternative at 3.8B, MIT, and 128K context, with a higher weight/activation memory burden. The target's fp16 weights alone require roughly 3.1 GB before KV cache, activations and framework overhead; the 0.5B draft adds roughly 1 GB at fp16. LoRA training completed on a free Colab Tesla T4 in this project; actual GPU memory use is recorded with the benchmark outputs where available.
 
 Training uses LoRA (rank 16, alpha 32, dropout .05) on Q/K/V/O projections, AdamW defaults from Transformers Trainer, 3 epochs, LR 2e-4, batch 1, gradient accumulation 8, 4096 token truncation, gradient checkpointing, and validation-loss checkpoint selection. Train/evaluation patient sets are distinct. Run:
 
@@ -36,7 +36,7 @@ Training uses LoRA (rank 16, alpha 32, dropout .05) on Q/K/V/O projections, Adam
 python scripts/train_lora.py
 ```
 
-The current script is a reproducibility scaffold. Its default `Trainer` causal-LM loss includes prompt tokens as well as answer tokens; improve to answer-only masking and inspect truncation before treating this config as a final experiment. GPU feasibility, training curves, adapter artifact and performance remain unverified. Do not call this model fine-tuned until the run completes and is evaluated.
+The script uses answer-only loss and validation-loss checkpoint selection. A three-epoch Colab T4 run completed and the adapter was evaluated on validation. Colab required FP16 and a Transformers 5 compatibility adjustment made only in that runtime; reconcile those changes before claiming exact fresh-clone reproduction. Inspect truncation effects before final conclusions.
 
 ## Validation and final test
 
@@ -56,7 +56,7 @@ python scripts/benchmark_attention.py
 python scripts/benchmark_decoding.py
 ```
 
-The attention implementation is independently tested on CPU. Decoder benchmarks require downloading a supported HF model. Reports include warmup, repeat count, synchronized timing on CUDA, output token IDs, throughput, and CUDA peak memory when available. Greedy speculative decoding assumes identical tokenizers; verify target/draft token equality. It re-prefills caches after verification rounds for correctness and may therefore be slow. Benchmark output is ignored from git until reviewed; publish real logs when available.
+The attention implementation is CPU-tested and has a Colab T4 synthetic benchmark. A reduced T4 decoder smoke benchmark verified output token equality at three lengths, but used one timing repeat; cached decoding was fastest and speculative decoding did not beat it. The benchmark now checks target/draft vocabulary equality; run it before the next speculative experiment. The implementation re-prefills caches after verification rounds for correctness and may be slow. See `docs/reproducibility.md`; generated result files are ignored because they may contain sensitive data.
 
 ## Browser application
 
@@ -68,7 +68,7 @@ Enter numbered patient sentences and one criterion per line (prefix `inclusion:`
 
 ## Report and submission
 
-See `report/main.tex` and `docs/reproducibility.md`. The report is a draft until real results, figures, failure analysis (at least eight distinct reviewed cases), author details, repository URL, adapter distribution, PDF, and demo are supplied. The rubric totals 135 despite its 100-mark heading; it is reported as printed in the assignment. Record the demo and submit through Classroom externally.
+See `report/main.tex` and `docs/reproducibility.md`. The report includes preliminary validation and inference results. It remains a draft until the held-out test, robust benchmarks, final failure analysis, author/repository details, adapter distribution, compiled PDF, and demo are completed. The rubric totals 135 despite its 100-mark heading; it is reported as printed in the assignment. Record the demo and submit through Classroom externally.
 
 ## AI-use acknowledgement
 
