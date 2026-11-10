@@ -1,5 +1,7 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{cite,amsmath,booktabs,graphicx,url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 \title{Reproducible Criterion-Level Clinical Trial Screening with an Open-Weight Transformer}
 \author{\IEEEauthorblockN{Taimoor Ahmad}\IEEEauthorblockA{Department of Computer Science, FAST National University of Computer and Emerging Sciences\\\url{https://github.com/taimoorahmadx/genai-a2}}}
 \begin{document}
@@ -32,8 +34,40 @@ The cached decoder prefills the prompt once, then forwards the newest token with
 \subsection{Application}
 The Streamlit application accepts numbered patient text and free-text inclusion/exclusion criteria, displays criterion category, explanation and evidence text, exposes a transparent aggregation rule and downloads a JSON report. It includes an educational-use notice and requires the local model to load successfully.
 
+Figure~\ref{fig:system} summarizes the supervised data path and application inference path. The test patients remain held out for a one-time final evaluation. The app parses model output and filters evidence IDs against the source note before display and export.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  stage/.style={draw,rounded corners,align=center,text width=3.2cm,minimum height=1.05cm,font=\footnotesize,inner sep=4pt},
+  flow/.style={-{Stealth[length=2mm]},thick},
+  link/.style={-{Stealth[length=2mm]},thick,dashed}
+]
+\node[stage] (data) {TrialGPT criterion annotations\\notes, labels, evidence IDs};
+\node[stage,right=0.65cm of data] (split) {Patient-grouped split\\37 train / 8 validation / 8 test};
+\node[stage,right=0.65cm of split] (train) {LoRA fine-tuning\\train patients; choose checkpoint on validation};
+\node[stage,right=0.65cm of train] (adapter) {Saved adapter\\test patients held out};
+\draw[flow] (data) -- (split);
+\draw[flow] (split) -- (train);
+\draw[flow] (train) -- (adapter);
+
+\node[stage,below=1.0cm of split] (input) {Browser input\\numbered patient note + criterion};
+\node[stage,right=0.65cm of input] (model) {Qwen2.5-1.5B + adapter\\uncached / KV / speculative decoding};
+\node[stage,right=0.65cm of model] (output) {Validated criterion output\\label, explanation, evidence text, JSON};
+\node[stage,right=0.65cm of output] (review) {Transparent rule aggregation\\expert review required};
+\draw[flow] (input) -- (model);
+\draw[flow] (model) -- (output);
+\draw[flow] (output) -- (review);
+\draw[link] (adapter.south) -- ++(0,-0.5) -| (model.north);
+\end{tikzpicture}
+\caption{System overview. Patient-grouped training produces a LoRA adapter; the application combines it with the base model and validates cited sentence IDs before showing criterion-level outputs. Tiled online-softmax attention is evaluated separately against reference attention.}
+\label{fig:system}
+\end{figure*}
+
 \section{Experimental Setup and Results}
 Training, validation evaluation, and synthetic attention and decoder benchmarks have been run in Colab. The final test evaluation was attempted after settings were frozen, but could not start because Colab GPU access was quota-limited; no test results are available. The same 206 validation annotations were evaluated with the base model and adapter. Table I reports observed classification and evidence metrics. The adapter increased accuracy from 0.262 to 0.723 and macro-F1 from 0.111 to 0.356. The increase in accuracy is not a complete picture: the adapter predicted \emph{not excluded} for all 140 exclusion examples, giving perfect recall for that majority class but failing to recover the two gold \emph{excluded} and eleven \emph{not applicable} cases. Its macro-F1 on exclusion criteria is only 0.140. This class bias motivates error review and careful interpretation; test data must not be used to tune it. Evidence micro-F1 increased from 0.000 to 0.429. Row-level evaluation artifacts remain in the Colab runtime and are not committed because they contain patient notes. On six small synthetic causal/noncausal attention cases, tiled outputs matched the reference with maximum absolute error $5.36\times10^{-7}$, but the tiled Python implementation was 2.58--51.98 times slower; these measurements do not establish an advantage on model workloads. For three short synthetic decoding cases, uncached, KV-cached, and speculative generation produced identical token IDs. KV cache was 1.85--4.06 times faster than uncached generation. Speculative decoding accepted all proposed tokens in these short repetitive outputs, but was 1.56--2.08 times slower than KV caching. These decoder timings used a single measured repeat, so they are exploratory; longer repeated measurements remain pending; target and draft tokenizer vocabularies and special token IDs were verified to match.
+
+The three-epoch training run completed 228 optimizer steps; the reported final training loss was 0.1347 and validation loss was 0.04293. The per-step training log was not retained, so a learning-curve figure cannot be produced from the available records.
 
 \begin{table}[ht]
 \caption{Validation results; held-out test pending.}

@@ -68,7 +68,7 @@ Enter numbered patient sentences and one criterion per line (prefix `inclusion:`
 
 ## Report and submission
 
-See `report/main.tex` and `docs/reproducibility.md`. The report includes preliminary validation and inference results. It remains a draft until the held-out test, robust benchmarks, final failure analysis, author/repository details, adapter distribution, compiled PDF, and demo are completed. The rubric totals 135 despite its 100-mark heading; it is reported as printed in the assignment. Record the demo and submit through Classroom externally.
+See `report/main.tex` and `docs/reproducibility.md`. The report draft includes the author/repository details, a system workflow diagram, validation and inference results, error analysis, and limitations. The held-out test was blocked by unavailable GPU access; a repeated decoder benchmark, compiled PDF review, adapter distribution, and app demo remain pending. The step-wise training log was not preserved, so no training curve is reported. The assignment rubric is reproduced as provided. Record the demo and submit through Classroom externally.
 
 ## AI-use acknowledgement
 

@@ -43,6 +43,7 @@
 - [ ] Try an unseen patient note and inclusion/exclusion criteria; verify cited sentence text and JSON export.
 - [ ] Run the inference comparison page with downloaded target and draft model weights.
 - [x] Fill report metadata (Taimoor Ahmad, Computer Science, FAST NUCES, repository URL); measured validation/benchmark results, error analysis and AI-use acknowledgement are included.
+- [x] Add system workflow diagram and document that step-wise training logs were not retained, so a training curve cannot be recreated honestly.
 - [ ] Compile `report/main.tex` to PDF and review it; no LaTeX compiler is installed in this environment.
 - [ ] Capture application screenshots and record the required 5–7 minute demo.
 - [ ] Publish the repository and provide a model adapter download path.
@@ -63,5 +64,6 @@
 - User-reported validation values: inclusion n=66, accuracy 0.727, macro-F1 0.250; exclusion n=140, accuracy 0.721, macro-F1 0.140.
 - An initial Colab decoder benchmark attempt was interrupted during uncached generation. A reduced smoke run later completed; its one-repeat measurements are preliminary, and the explicit tokenizer equality check has since passed. Target/draft weights are cached in that runtime.
 - The Colab runtime may expire when idle. The downloaded zip is safe; reconnect and restore the repo/data/model environment to continue.
+- Kaggle GPU selection is currently disabled for this account; the user cannot complete phone verification. No other accelerator is available in the present environment.
 - The final test command was attempted after settings were frozen, but Colab displayed “Cannot connect to GPU backend” due to usage limits. No test metrics were generated; do not rerun until GPU access returns.
 - Time-critical next action: reconnect when GPU access returns, run final test once, save aggregate metrics only, then compile the report and complete external demo/submission.
